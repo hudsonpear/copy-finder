@@ -1,0 +1,6 @@
+Copy Finder 1.0.0
+Created by: Hudson Pear (pyrus)
+
+-> Version 1.0.0 - 08/11/2025
+
+* First public release of Copy Finder.

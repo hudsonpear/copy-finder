@@ -1,0 +1,32 @@
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('api', {
+  selectFolders: () => ipcRenderer.invoke('select-folders'),
+  findDuplicates: (folders, hashSetting, blinkEnabled, ignoreSettings) => ipcRenderer.invoke('find-duplicates', folders, hashSetting, blinkEnabled, ignoreSettings),
+  deleteFiles: (files) => ipcRenderer.invoke('delete-files', files),
+  onScanProgress: (callback) => ipcRenderer.on('scan-progress', (e, data) => callback(data)),
+  onScanComplete: (callback) => ipcRenderer.on('scan-complete', (e, data) => callback(data)),
+  readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
+  openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),
+  openFolder: (filePath) => ipcRenderer.invoke('open-folder', filePath),
+  cancelScan: () => ipcRenderer.invoke("cancel-scan"),
+  onScanCancelled: (callback) => ipcRenderer.on("scan-cancelled", callback),
+  getFileURL: (filePath) => ipcRenderer.invoke('get-file-url', filePath),
+  startDrag: (filePath) => ipcRenderer.send('ondragstart', filePath),
+  onScanErrors: (callback) => ipcRenderer.on('scan-errors', (e, errors) => callback(errors)),
+  onScanCancelError: (callback) => ipcRenderer.on('scan-cancel-error', (e, error) => callback(error)),
+  getSetting: (key) => ipcRenderer.invoke('getSetting', key),
+  setSetting: (key, value) => ipcRenderer.invoke('setSetting', key, value),
+  toggleFullScreen: () => ipcRenderer.send('toggle-fullscreen'),
+  openDevTools: () => ipcRenderer.send('open-devtools'),
+  reload: () => ipcRenderer.send('reload'),
+  zoomIn: () => ipcRenderer.send('zoom-in'),
+  zoomOut: () => ipcRenderer.send('zoom-out'),
+  resetZoom: () => ipcRenderer.send('zoom-reset'),
+  minimize: () => ipcRenderer.send('minimize'),
+  maximize: () => ipcRenderer.send('maximize'),
+  restore: () => ipcRenderer.send('restore'),
+  onOpenSettings: (callback) => ipcRenderer.on('open-settings-ui', callback),
+  onOpenAbout: (callback) => ipcRenderer.on('open-about-ui', callback),
+  openExternal: (url) => ipcRenderer.invoke('open-external', url)
+});

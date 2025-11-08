@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copy Finder</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ERROR MSG DIALOG -->
+  <div id="errorMsgDisplayDiv"></div> 
+
+	<button id="backToTop" class="buttonStyle">
+    <svg id="arrowUpSvg" viewBox="0 0 24 24">
+      <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8l-8 8z"/>
+    </svg>
+  </button>
+
+  <div class="dTitle hidden">Copy Finder - Duplicate File Finder</div>
+  <div class="dTitle hidden">Copy Finder</div>
+
+  <div id="controls" class="controls">
+    <div id="leftControls">
+      <button id="addFolderBtn" class="buttonStyle">📁 Add Folder</button>
+      <button id="scanBtn" class="buttonStyle">🔍 Start Scan</button>
+      <button id="cancelScanBtn" class="buttonStyle" disabled>❌ Cancel Scan</button>
+      <button id="deleteBtn" class="buttonStyle btn-danger" disabled>🗑️ Delete Selected (<span id="delSelected">0</span>)</button>
+      <button id="clearBtn" class="buttonStyle">🧹 Clear All</button>
+      <button id="errorLogBtn" class="buttonStyle hidden">🚨 Error Logs</button>
+    </div>
+    <div id="rightControls"> 
+      <button id="openSettBtn" class="buttonStyle">⚙️ Settings</button>
+      <button id="infoBtn" class="buttonStyle sameSizeBtn">ⓘ</button>
+    </div>
+  </div>
+
+  <div class="folder-list">
+    <span id="selectedFolderSpan" class="">No folders selected.</span>
+    <div id="folderList" class="">
+    </div>
+  </div>
+
+  <div class="main-content">
+    
+    <div id="scanSatus" class="">
+
+      <!-- collecting files text -->
+      <div id="scanStatus"></div>
+
+      <!-- scanning... % -->
+      <span id="scanPercent"></div>
+      
+      <div id="progressBar" class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+
+      <!-- completed in -->
+      <div id="scanTime" style="display: none;"></div>
+
+    </div>
+
+    <div id="panel">
+      <div class="stats" id="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="totalScan">0</div>
+          <div class="stat-label">Files Scanned</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalDuplicates">0</div>
+          <div class="stat-label">Total Duplicates</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="dupGroups">0</div>
+          <div class="stat-label">Duplicate Groups</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="wastedSpace">0 MB</div>
+          <div class="stat-label">Wasted Space</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalScanTime">0s</div>
+          <div class="stat-label">Scan Time</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="downControls" class="">
+      <div id="downLeft">
+        <button id="selectDupBtn" class="buttonStyle hidden">⬜ Select Duplicated</button>
+
+        <div id="selectMenuWrapper">
+          <button id="selectBtn" class="buttonStyle sameSizeBtn">Select Menu</button>
+          <div id="selectDropdown">
+            <div class="selectOption divider" data-select="seldup">Select Duplicated</div>
+            <div class="selectOption hidden" data-select="selbig">Select the Biggest Size</div>
+            <div class="selectOption divider hidden" data-select="selsmall">Select the Smallest Size</div>
+            <div class="selectOption" data-select="selnew_ctime">Select Newest Creation Time</div>
+            <div class="selectOption divider" data-select="selold_ctime">Select Oldest Creation Time</div>
+            
+            <div class="selectOption" data-select="selnew_mtime">Select Newest Modified Time</div>
+            <div class="selectOption divider" data-select="selold_mtime">Select Oldest Modified Time</div>
+            
+            <div class="selectOption divider" data-select="selinv">Invert Selection</div>
+            <div class="selectOption" data-select="selall">Select All</div>
+            <div class="selectOption" data-select="unsel">Unselect All</div>
+          </div>
+        </div>
+
+
+      </div>
+      
+      <div id="downRight">
+        <div id="sortMenuWrapper" style="position: relative; display: inline-block;">
+          <button id="sortBtn" class="buttonStyle sameSizeBtn">Sort By ↕</button>
+          <div id="sortDropdown">
+            <div class="sortOption" data-sort="name">Name</div>
+            <div class="sortOption" data-sort="path">Path</div>
+            <div class="sortOption" data-sort="size">Size</div>
+            <div class="sortOption" data-sort="mtime">Modified</div>
+            <div class="sortOption" data-sort="ctime">Created</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="results">
+    </div>
+    
+    <div id="emptyState" class="">
+      <div class="empty-icon">📂</div>
+      <h3>Select folders to start scanning</h3>
+      <p>Choose the directories you want to scan for duplicate files</p>
+    </div>
+
+    <!-- <div id="preview"></div> -->
+  </div>
+  
+  <!-------------------------SETTINGS WINDOW-------------------------------->
+  <div id="settingsWindow" class="">
+      <div id="dragHandleSett" class="windowTop">
+          <span class="windowTitle">Settings</span>
+          <div id="settCloseBtn" class="closeBtn">
+              <svg class="xBtn" viewBox="0 -960 960 960">
+                  <path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/>
+              </svg>
+          </div>
+      </div>
+
+      <div class="settTabs">
+          <div class="">
+              <button id="generalTab" class="tabactive">
+                <span class="ctabText">General</span>
+              </button>
+              <button id="hashSearchTab" class="">
+                <span class="ctabText">Search</span>
+              </button>
+               <button id="ignoreTab" class="">
+                <span class="ctabText">Ignore</span>
+              </button>
+          </div>
+      </div>
+
+      <div id="settContentDiv">
+
+        <div id="generalContentDiv" class="">
+
+          <div id="lightdark-mode" class="">
+            <div class="lightdark-div  " >
+              <svg class="mode-icon " viewBox="0 0 24 24">
+                <path fill="" d="M7.5,2C5.71,3.15 4.5,5.18 4.5,7.5C4.5,9.82 5.71,11.85 7.53,13C4.46,13 2,10.54 2,7.5A5.5,5.5 0 0,1 7.5,2M19.07,3.5L20.5,4.93L4.93,20.5L3.5,19.07L19.07,3.5M12.89,5.93L11.41,5L9.97,6L10.39,4.3L9,3.24L10.75,3.12L11.33,1.47L12,3.1L13.73,3.13L12.38,4.26L12.89,5.93M9.59,9.54L8.43,8.81L7.31,9.59L7.65,8.27L6.56,7.44L7.92,7.35L8.37,6.06L8.88,7.33L10.24,7.36L9.19,8.23L9.59,9.54M19,13.5A5.5,5.5 0 0,1 13.5,19C12.28,19 11.15,18.6 10.24,17.93L17.93,10.24C18.6,11.15 19,12.28 19,13.5M14.6,20.08L17.37,18.93L17.13,22.28L14.6,20.08M18.93,17.38L20.08,14.61L22.28,17.15L18.93,17.38M20.08,12.42L18.94,9.64L22.28,9.88L20.08,12.42M9.63,18.93L12.4,20.08L9.87,22.27L9.63,18.93Z" />
+              </svg>
+              <span id="lightdarkText" class="lightdarkmode-text settOptText">Light/Dark Mode</span>
+            </div>
+
+            <div class="theSwitch ">
+              <label class="switch">
+                <input type="checkbox" id="darkModeBtn">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div id="" class="settOptDiv">
+            <label class="settCheckBox">
+                <input id="flashTaskbar" type="checkbox">
+                <span class="theCheckMark"></span>
+                <label id="" class="settOptText" for="flashTaskbar">Flash app on taskbar when finish scan</label>
+            </label>
+          </div> 
+
+          <div id="" class="settOptDiv">
+            <label class="settCheckBox">
+                <input id="backToTopBtn" type="checkbox">
+                <span class="theCheckMark"></span>
+                <label id="" class="settOptText" for="backToTopBtn">Display Back-To-Top Button</label>
+            </label>
+          </div> 
+
+          <div id="settSortingDiv" class="settOptDiv hidden">
+            <span class="settOptText">Default Sorting Method</span>
+            
+            <div style="display: flex; gap: 50px;">
+              <!-- Left column -->
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label><input type="radio" name="defaultSort" value="sizeDesc" checked><span>Size Descending</span></label>
+                <label><input type="radio" name="defaultSort" value="nameAsc"><span>Name Ascending</span></label>
+                <label><input type="radio" name="defaultSort" value="pathAsc"><span>Path Ascending</span></label>
+              </div>
+              <!-- Right column -->
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label><input type="radio" name="defaultSort" value="sizeAsc"><span>Size Ascending</span></label>
+                <label><input type="radio" name="defaultSort" value="nameDesc"><span>Name Descending</span></label>
+                <label><input type="radio" name="defaultSort" value="pathDesc"><span>Path Descending</span></label>
+              </div>
+            </div>
+
+          </div>
+
+          <div id="" class="settOptDiv settDupeClickDiv">
+            <span class="settOptText">On Duplicated Item Click</span>
+            <div style="display: flex; gap: 73px;">
+              <!-- Left column -->
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label><input type="radio" name="itemClick" value="openPreview" checked><span>Open Preview</span></label>
+              </div>
+              <!-- Right column -->
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label><input type="radio" name="itemClick" value="selectItem"><span>Select Item</span></label>
+              </div>
+            </div>
+          </div>
+
+          <div id="displayTimesDiv" class="settOptDiv settDupeClickDiv">
+            <span class="settOptText">Display on Items List</span>
+            <div style="display: flex; gap: 73px;">
+              <!-- Left column -->
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label><input type="radio" name="displayItemList" value="modTime" checked><span>Modified Time</span></label>
+              </div>
+              <!-- Right column -->
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <label><input type="radio" name="displayItemList" value="creTime"><span>Creation Time</span></label>
+              </div>
+            </div>
+          </div>
+
+
+          <div id="maximizedApp" class="settOptDiv">
+            <label class="settCheckBox">
+              <input id="startMaximized" type="checkbox">
+              <span class="theCheckMark"></span>
+              <label class="settOptText" for="startMaximized">Start App Maximized</label>
+            </label>
+          </div>
+          
+        </div>
+
+        <div id="hashContentDiv" class="hidden">
+
+          <div id="settHashSearchDiv" class="">
+            <label for="hashModeSelect" class="">Hash Size Search:</label>
+            <select id="hashModeSelect">
+              <option value="full" selected>Whole Hash (Slow)</option>
+              <option value="balanced" >Based on File Size (Balanced)</option>
+              <option value="4kb">First 4 KB (Fastest)</option>
+              <option value="8kb">First 8 KB (Faster)</option>
+              <option value="16kb">First 16 KB (Fast)</option>
+              <option value="custom">Custom (Type Value)</option>
+            </select>
+            <input type="number" id="customHashKB" placeholder="KB value" min="1">
+
+            <div id="dynamicHashInfo"></div>
+
+            <div class="hashInfo" >
+              <strong>Note:</strong> Smaller hash sizes (4 KB, 8 KB) make scans faster but less accurate. 
+              Larger hash sizes or full file hashing are slower but improve accuracy in detecting duplicates. 
+              Use <em>Custom</em> to specify a specific KB value.
+            </div>
+
+            <div id="plimitDiv" class="settOptDiv">
+              <span id="pLimitSpan">Number of Files to Scan at Once</span>
+              <input type="number" id="pLimitInput" placeholder="" min="1" value="50">
+              <p class="hashInfo">
+                Controls how many files are processed at the same time while scanning.  
+                Higher values can speed up the scan on fast SSDs but may use more CPU and disk activity.  
+                Lower values are safer for slower/low-end systems.
+              </p>
+            </div>
+
+            <div id="" class="settOptDiv">
+              
+              <label class="settCheckBox">
+                  <input id="settIngoreSmall" type="checkbox">
+                  <span class="theCheckMark"></span>
+                  <label id="" class="settOptText" for="settIngoreSmall">Ignore files smaller than</label>
+              </label>
+
+              <input type="number" id="ignoreSmallInput" placeholder="KB value" min="1">
+              <span class="smallKbText">KB</span>
+
+            </div> 
+
+            <div id="" class="settOptDiv">
+              <label class="settCheckBox">
+                  <input id="settIngoreLarger" type="checkbox">
+                  <span class="theCheckMark"></span>
+                  <label id="" class="settOptText" for="settIngoreLarger">Ignore files larger than</label>
+              </label>
+              <input type="number" id="ignoreLargeInput" placeholder="MB value" min="1">
+              <span class="smallKbText">MB</span>
+            </div> 
+
+            <div id="" class="settOptDiv">
+              <label class="settCheckBox">
+                  <input id="excludeLinks" type="checkbox">
+                  <span class="theCheckMark"></span>
+                  <label id="" class="settOptText" for="excludeLinks">Exclude Shortcuts (.lnk)</label>
+              </label>
+            </div>
+
+
+            
+          </div>
+
+        </div>
+
+        <div id="ignoreContentDiv" class="hidden">
+          <div class="settOptDiv">
+            <label class="settOptText">Ignore Patterns (Regular Expressions)</label>
+
+            <ul id="ignoreList" class="ignoreList"></ul>
+
+            <div class="ignoreListBtns">
+              <button id="addIgnoreBtn" class="buttonStyle ignoreBtns">＋ Add</button>
+              <button id="clearIgnoreBtn" class="buttonStyle ignoreBtns">🗑️ Clear</button>
+              <button id="restoreDefaultsBtn"class="buttonStyle ignoreBtns">♻️ Restore Defaults</button>
+            </div>
+
+            <small style="opacity:0.7;">
+              Example: 
+              <code>\\.git([\\/]|$)</code>, 
+              <code>node_modules([\\/]|$)</code>, 
+              <code>thumbs\\.db$</code>
+            </small>
+          </div>
+
+        </div>
+
+
+      </div><!-- SETT CONTENT -->
+
+  </div>
+  <!-------------------------/SETTINGS WINDOW-------------------------------->
+
+
+  <!-- Floating delete button -->
+  <button id="floatingDeleteBtn" class="buttonStyle floating-delete">
+    🗑️
+  </button>
+
+  <!-- RIGHT CLICK MENU -->
+  <div id="rightClickMenu" class="rightClickMenuClass">
+      <ul class="rightClickMenuUL">
+          <li id="rightClickMenuItem_file"></li>
+          <li id="" class="rightClickMenuItem">
+              Select File
+          </li>
+          <li class="rightClickMenuItem">
+              Open File
+          </li>
+          <li class="rightClickMenuItem">
+              Open Folder
+          </li>
+          <li id="" class="rightClickMenuItem">
+              Show Preview
+          </li>
+          <li id="" class="rightClickMenuItem">
+              Delete File
+          </li>
+          <li id="" class="rightClickMenuItem">
+              Close
+          </li>
+      </ul>
+  </div><!-- RIGHT CLICK MENU -->
+
+  <!---------------------------- INPUT DIALOG / INPUT WINDOW ---------------------------------->
+  <div id="inputDlg" class="">
+      <div id="" class="windowTop2">
+          <span id="inputDlg_Title" class="">Add Ignore Pattern</span>
+          <div id="inputDlgCloseBtn" class="closeBtn">
+              <svg class="xBtn" viewBox="0 -960 960 960">
+                  <path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/>
+              </svg>
+          </div>
+      </div>
+      <div class="inputDlg_Content">
+        <div class="inputDlgContentDiv">
+            <input id="inputDlgInput" class="inputDlgInput" type="text" placeholder="Regex String" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+      </div>  
+      <div class="inputDlgBtns">
+          <button id="inputDlgOk" class="buttonStyle inputBtns" type="">OK</button>
+          <button id="inputDlgCancel" class="buttonStyle inputBtns" type="">Cancel</button>
+      </div>
+
+  </div>
+  <!---------------------- /INPUT DIALOG ----------------------->
+
+  <!---------------------------- CONFIRM DIALOG ---------------------------------->
+  <div id="confirmDlg" class="">
+      <div id="" class="confirmWindowTop">
+          <span id="confirmDlg_Title" class="">Confirmation</span>
+          <div id="confirmDlgCloseBtn" class="confirmCloseBtn">
+              <svg class="xBtn" viewBox="0 -960 960 960">
+                  <path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/>
+              </svg>
+          </div>
+      </div>
+      <div class="confirmDlg_Content">
+          <span id="confirmText" class=""></span>
+      </div>  
+      <div id="" class="confirmDlg_Buttons">
+          <button id="confirmOk" class="buttonStyle inputBtns" type="">Yes</button>
+          <button id="confirmCancel" class="buttonStyle inputBtns" type="">Cancel</button>
+      </div>
+  </div>
+  <!---------------------- /CONFIRM DIALOG ----------------------->
+
+  <!-------------------------SETTINGS WINDOW-------------------------------->
+  <div id="aboutWindow" class="">
+      <div id="dragHandleAbout" class="windowTop">
+          <span class="windowTitle">About</span>
+          <div id="aboutCloseBtn" class="closeBtn">
+              <svg class="xBtn" viewBox="0 -960 960 960">
+                  <path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/>
+              </svg>
+          </div>
+      </div>
+
+      <div id="aboutContentDiv">
+        <img id="logoCpyFinder" src="assets/search.ico" alt="">
+        <div>Copy Finder 1.0.0</div>
+        <div>2025</div>
+        <div>Created By: Hudson Pear (pyrus)</div>
+        <div class="">
+          <a class="theEmail" href="mailto:coolnewtabpage@gmail.com">
+            coolnewtabpage@gmail.com
+          </a>
+          <span id="copyIcon">📋</span>
+        </div>
+
+        <div id="helpGithub" class="helpGithub">
+          <svg class="imgGithub" width="32" height="32" viewBox="0 0 1024 1024" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" transform="scale(64)" fill=""/>
+          </svg>
+          <span class="textRate">Github</span>
+        </div>
+      </div><!-- SETT CONTENT -->
+
+  </div>
+  <!-------------------------/SETTINGS WINDOW-------------------------------->
+
+
+  <script src="theme.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

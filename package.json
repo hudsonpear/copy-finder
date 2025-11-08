@@ -1,0 +1,77 @@
+{
+  "name": "copy-finder",
+  "version": "1.0.0",
+  "description": "App to find duplicated files",
+  "main": "main.js",
+  "author": "Hudson Pear",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.hudsonpear.copyfinder",
+    "productName": "Copy Finder",
+    "asarUnpack": ["changelog.txt"],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "hudsonpear",
+        "repo": "copy-finder"
+      }
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "renderer.js",
+      "index.html",
+      "preload.js",
+      "theme.js",
+      "changelog.txt",
+      "menu.js",
+      "style.css",
+      "assets/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "assets/search.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "c.app-category.utilities",
+      "icon": "assets/search.icns"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "assets/icons"
+    }
+  },
+  "dependencies": {
+    "crypto": "npm:crypto-js",
+    "electron-updater": "^6.6.2",
+    "fs-extra": "^11.2.0",
+    "p-limit": "^2.3.0"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}
