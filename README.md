@@ -1,7 +1,6 @@
 <p align="center">
   <img height="" src="https://i.imgur.com/kFYX2B8.png">
 </p>
-<h1 align="center">by: Hudson Pear (pyrus)</h1>
 
 <p align="center">
     <b>Search and delete duplicated files on your computer. Made with Electron</b>
