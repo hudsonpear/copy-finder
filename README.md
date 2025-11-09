@@ -16,10 +16,10 @@
 
 ## Download
 
-Avaliable for Windows
+Avaliable for Windows and Linux
 [Download Latest Release](https://github.com/hudsonpear/copy-finder/releases)
 
-Linux and MacOS Version Soon™?
+(Linux Version not fully tested)
 
 ## Screenshots
 
