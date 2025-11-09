@@ -21,8 +21,6 @@ Avaliable for Windows
 
 Linux and MacOS Version Soon™?
 
-You can run or compile yourself for Linux and MacOS. (Not Tested)
-
 ## Screenshots
 
 ![screenshot1](https://i.imgur.com/oJQibC5.png)
